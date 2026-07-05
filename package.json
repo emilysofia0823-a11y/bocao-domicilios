@@ -2,6 +2,6 @@
   "name": "bocao-domicilios",
   "version": "1.0.0",
   "scripts": {
-    "start": "npx serve . -l 3000 --no-clipboard"
+    "start": "npx serve@14 . -l $PORT"
   }
 }
