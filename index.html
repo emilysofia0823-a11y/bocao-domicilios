@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Boca'o — Domicilios</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#0a0a0a;--card:#161616;--border:#222;--yellow:#FFD700;--green:#22c55e;--red:#ef4444;--blue:#3b82f6;--text:#f0f0f0;--muted:#666;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;}
+
+/* LOGIN */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.login-box{background:var(--card);border:2px solid var(--border);border-radius:18px;padding:36px 28px;width:100%;max-width:320px;text-align:center;}
+.login-icon{font-size:3rem;margin-bottom:10px;}
+.login-title{font-size:1.2rem;font-weight:900;color:var(--yellow);margin-bottom:4px;}
+.login-sub{font-size:0.78rem;color:var(--muted);margin-bottom:24px;}
+.pin-input{width:100%;background:#111;border:2px solid var(--border);color:var(--text);padding:14px;border-radius:12px;font-size:1.1rem;font-weight:700;text-align:center;outline:none;letter-spacing:3px;font-family:inherit;margin-bottom:12px;}
+.pin-input:focus{border-color:var(--yellow);}
+.pin-btn{width:100%;background:var(--yellow);color:#000;border:none;padding:14px;border-radius:12px;font-size:1rem;font-weight:900;cursor:pointer;letter-spacing:.5px;}
+.pin-error{color:var(--red);font-size:0.8rem;margin-top:10px;display:none;}
+.pin-error.show{display:block;}
+
+/* HEADER */
+.app-header{background:var(--card);border-bottom:3px solid var(--yellow);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+.app-logo{font-size:0.95rem;font-weight:900;color:var(--yellow);}
+.app-user{font-size:0.75rem;color:var(--muted);}
+.app-logout{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;}
+
+/* STATUS BAR */
+.status-bar{background:#111;padding:8px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#333;flex-shrink:0;}
+.status-dot.on{background:var(--green);box-shadow:0 0 6px var(--green);}
+.status-txt{font-size:0.72rem;color:var(--muted);}
+.pending-count{margin-left:auto;background:var(--yellow);color:#000;font-size:0.7rem;font-weight:900;padding:2px 10px;border-radius:50px;}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);}
+.tab{flex:1;padding:11px 6px;text-align:center;font-size:0.78rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;}
+.tab.active{color:var(--yellow);border-bottom-color:var(--yellow);}
+
+/* CARDS */
+.cards{padding:14px;display:flex;flex-direction:column;gap:12px;}
+.order-card{background:var(--card);border:2px solid var(--border);border-radius:14px;overflow:hidden;}
+.order-card.urgente{border-color:var(--yellow);}
+.order-card.camino{border-color:var(--blue);}
+.order-card.done{border-color:#1a1a1a;opacity:.6;}
+
+.card-top{padding:12px 14px;display:flex;align-items:center;gap:8px;}
+.order-num{background:var(--yellow);color:#000;font-weight:900;font-size:0.8rem;padding:4px 12px;border-radius:50px;}
+.order-num.camino{background:var(--blue);}
+.order-num.done{background:#333;color:#666;}
+.order-time{font-size:0.7rem;color:var(--muted);margin-left:auto;}
+.order-estado{font-size:0.68rem;font-weight:700;padding:3px 9px;border-radius:50px;}
+.est-listo{background:#14532d;color:var(--green);}
+.est-camino{background:#1e3a5f;color:var(--blue);}
+.est-done{background:#1a1a1a;color:#444;}
+
+.card-client{padding:0 14px 10px;border-bottom:1px solid var(--border);}
+.client-name{font-size:1rem;font-weight:900;margin-bottom:4px;}
+.client-detail{font-size:0.8rem;color:var(--muted);line-height:1.7;}
+.client-detail a{color:var(--blue);font-weight:700;text-decoration:none;}
+.client-maps{display:inline-flex;align-items:center;gap:4px;margin-top:4px;background:#1a1a2e;border:1px solid var(--blue);color:var(--blue);padding:5px 12px;border-radius:8px;font-size:0.72rem;font-weight:700;text-decoration:none;}
+
+.card-products{padding:10px 14px;border-bottom:1px solid var(--border);}
+.prod-title{font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.prod-row{display:flex;justify-content:space-between;font-size:0.82rem;padding:3px 0;}
+.prod-name{flex:1;}
+.prod-var{font-size:0.7rem;color:var(--muted);}
+.prod-obs{font-size:0.7rem;color:#f97316;font-style:italic;padding-left:8px;}
+.card-notas{background:#1a1200;border:1px solid #3a2a00;border-radius:8px;padding:7px 10px;font-size:0.75rem;color:#fbbf24;margin-top:6px;}
+
+.card-cobro{padding:10px 14px;background:#0d0d0d;border-bottom:1px solid var(--border);}
+.cobro-row{display:flex;justify-content:space-between;align-items:center;}
+.cobro-label{font-size:0.72rem;color:var(--muted);}
+.cobro-total{font-size:1.2rem;font-weight:900;color:var(--yellow);}
+.cobro-metodo{font-size:0.8rem;font-weight:700;padding:4px 12px;border-radius:50px;}
+.met-efectivo{background:#14532d;color:var(--green);}
+.met-nequi{background:#1e3a5f;color:var(--blue);}
+.met-transferencia{background:#312107;color:#f59e0b;}
+
+.card-actions{padding:12px 14px;display:flex;gap:8px;}
+.btn-camino{flex:1;background:var(--blue);color:#fff;border:none;padding:13px;border-radius:10px;font-weight:800;cursor:pointer;font-size:0.88rem;transition:transform .15s;}
+.btn-camino:active{transform:scale(.97);}
+.btn-entregado{flex:1;background:var(--green);color:#fff;border:none;padding:13px;border-radius:10px;font-weight:800;cursor:pointer;font-size:0.88rem;transition:transform .15s;}
+.btn-entregado:active{transform:scale(.97);}
+.btn-done-tag{flex:1;background:#1a1a1a;color:#444;border:none;padding:13px;border-radius:10px;font-weight:700;font-size:0.85rem;cursor:default;}
+
+.empty{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty-icon{font-size:3rem;margin-bottom:12px;}
+.empty-done{text-align:center;padding:30px 20px;color:#333;font-size:0.82rem;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN (visible si no hay sesión) -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="login-icon">🛵</div>
+    <div class="login-title">Boca'o Domicilios</div>
+    <div class="login-sub">Ingresa tu PIN para ver tus pedidos</div>
+    <input class="pin-input" type="password" id="pinInput" placeholder="••••••" maxlength="12"
+      onkeydown="if(event.key==='Enter')checkPin()"/>
+    <button class="pin-btn" onclick="checkPin()">Entrar →</button>
+    <div class="pin-error" id="pinError">PIN incorrecto</div>
+  </div>
+</div>
+
+<!-- APP (visible después del login) -->
+<div id="appWrap" style="display:none;">
+  <div class="app-header">
+    <div>
+      <div class="app-logo">🛵 Mis domicilios</div>
+      <div class="app-user" id="appUser"></div>
+    </div>
+    <button class="app-logout" onclick="doLogout()">Salir</button>
+  </div>
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <span class="status-txt" id="statusTxt">Conectando...</span>
+    <span class="pending-count" id="pendingCount" style="display:none"></span>
+  </div>
+  <div class="tabs">
+    <div class="tab active" id="tabPend" onclick="setTab('pendiente')">📦 Pendientes</div>
+    <div class="tab" id="tabCamino" onclick="setTab('camino')">🛵 En camino</div>
+    <div class="tab" id="tabDone" onclick="setTab('done')">✅ Entregados</div>
+  </div>
+  <div class="cards" id="cards">
+    <div class="empty"><div class="empty-icon">📦</div>Sin pedidos aún</div>
+  </div>
+</div>
+
+<script>
+// ── CREDENCIALES DOMICILIARIOS ──
+// Solo pueden ver domicilios. Sin acceso a ventas ni admin.
+var DOMS = {
+  'dom2025': { nombre: 'Domiciliario 1' },
+  'moto123': { nombre: 'Domiciliario 2' }
+};
+
+var sesion = null, tabActual = 'pendiente', pedidos = [];
+
+function checkPin(){
+  var pin = document.getElementById('pinInput').value.trim();
+  var err = document.getElementById('pinError');
+  var user = DOMS[pin];
+  if(!user){ err.classList.add('show'); return; }
+  err.classList.remove('show');
+  sesion = { pin: pin, nombre: user.nombre };
+  sessionStorage.setItem('bocao_dom', JSON.stringify(sesion));
+  iniciarApp();
+}
+
+function iniciarApp(){
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('appWrap').style.display = 'block';
+  document.getElementById('appUser').textContent = sesion.nombre;
+  if(window._startListen) window._startListen();
+}
+
+function doLogout(){
+  sessionStorage.removeItem('bocao_dom');
+  location.reload();
+}
+
+window.setTab = function(t){
+  tabActual = t;
+  ['Pend','Camino','Done'].forEach(function(k){ document.getElementById('tab'+k).classList.remove('active'); });
+  var m = { pendiente:'Pend', camino:'Camino', done:'Done' };
+  document.getElementById('tab'+m[t]).classList.add('active');
+  renderPedidos();
+};
+
+function fmt(n){ return '$'+(n||0).toLocaleString('es-CO'); }
+
+function tiempoLabel(fecha){
+  if(!fecha) return '';
+  var diff = Math.floor((Date.now()-new Date(fecha).getTime())/60000);
+  if(diff<1) return 'Ahora';
+  if(diff<60) return diff+' min';
+  return Math.floor(diff/60)+'h '+(diff%60)+'m';
+}
+
+function renderPedidos(){
+  var el = document.getElementById('cards');
+  var mLabels = { efectivo:'💵 Efectivo', nequi:'📱 Nequi', transferencia:'🏦 Transferencia' };
+  var mClass  = { efectivo:'met-efectivo', nequi:'met-nequi', transferencia:'met-transferencia' };
+
+  var shown = pedidos;
+  if(tabActual==='pendiente') shown = pedidos.filter(function(p){ return p.estado==='listo'; });
+  if(tabActual==='camino')    shown = pedidos.filter(function(p){ return p.estado==='en_camino'; });
+  if(tabActual==='done')      shown = pedidos.filter(function(p){ return p.estado==='entregado'; });
+
+  // badge pendientes
+  var np = pedidos.filter(function(p){ return p.estado==='listo'; }).length;
+  var badge = document.getElementById('pendingCount');
+  badge.style.display = np>0 ? 'inline-block' : 'none';
+  badge.textContent = np+' nuevo'+(np!==1?'s':'');
+
+  if(shown.length===0){
+    var msgs = {
+      pendiente:'<div class="empty"><div class="empty-icon">📦</div>No hay pedidos listos para salir.</div>',
+      camino:   '<div class="empty"><div class="empty-icon">🛵</div>No tienes pedidos en camino.</div>',
+      done:     '<div class="empty-done">No hay entregas registradas hoy.</div>'
+    };
+    el.innerHTML = msgs[tabActual]; return;
+  }
+
+  el.innerHTML = '';
+  shown.forEach(function(p){
+    var cli = p.cliente||{};
+    var esListo   = p.estado==='listo';
+    var esCamino  = p.estado==='en_camino';
+    var esDone    = p.estado==='entregado';
+    var numClass  = esDone?'done':esCamino?'camino':'';
+    var cardClass = esDone?'done':esCamino?'camino':np>0?'urgente':'';
+    var estLabel  = esListo?'✅ Listo':esCamino?'🛵 En camino':'Entregado';
+    var estClass  = esListo?'est-listo':esCamino?'est-camino':'est-done';
+
+    var prodsHTML = (p.items||[]).map(function(i){
+      return '<div class="prod-row"><span class="prod-name">'+i.cantidad+'× '+i.nombre+
+        (i.variante&&i.variante!=='Precio'?' <span class="prod-var">('+i.variante+')</span>':'')+
+        '</span></div>'+
+        (i.notas?'<div class="prod-obs">📝 '+i.notas+'</div>':'');
+    }).join('');
+
+    // Mapa link
+    var mapsUrl = cli.direccion
+      ? 'https://maps.google.com?q='+encodeURIComponent((cli.direccion||'')+' '+(cli.barrio||'')+' Soledad Colombia')
+      : '';
+
+    var card = document.createElement('div');
+    card.className = 'order-card'+( cardClass?' '+cardClass:'');
+    card.innerHTML =
+      '<div class="card-top">'+
+        '<span class="order-num'+( numClass?' '+numClass:'')+'">#'+p.numero+'</span>'+
+        '<span class="order-estado '+estClass+'">'+estLabel+'</span>'+
+        '<span class="order-time">'+tiempoLabel(p.fecha)+'</span>'+
+      '</div>'+
+      '<div class="card-client">'+
+        '<div class="client-name">'+( cli.nombre||'Cliente')+'</div>'+
+        '<div class="client-detail">'+
+          (cli.telefono?'📞 <a href="tel:'+cli.telefono+'">'+cli.telefono+'</a><br/>':'')+
+          (cli.direccion?'📍 '+cli.direccion+'<br/>':'')+
+          (cli.barrio?'🏘️ '+cli.barrio:'')+'</div>'+
+        (mapsUrl?'<a class="client-maps" href="'+mapsUrl+'" target="_blank">🗺️ Abrir en Maps</a>':'')+
+      '</div>'+
+      '<div class="card-products">'+
+        '<div class="prod-title">Productos</div>'+
+        prodsHTML+
+        (p.notasGenerales?'<div class="card-notas">📝 '+p.notasGenerales+'</div>':'')+
+      '</div>'+
+      '<div class="card-cobro">'+
+        '<div class="cobro-row">'+
+          '<div><div class="cobro-label">Total a cobrar</div><div class="cobro-total">'+fmt(p.total)+'</div></div>'+
+          (p.metodoPago?'<span class="cobro-metodo '+(mClass[p.metodoPago]||'')+'">'+( mLabels[p.metodoPago]||p.metodoPago)+'</span>':'<span class="cobro-metodo" style="color:#555">Sin método</span>')+
+        '</div>'+
+      '</div>'+
+      '<div class="card-actions">'+
+        (esListo  ? '<button class="btn-camino"    onclick="marcar(\''+p._id+'\',\'en_camino\')">🛵 Salí a entregar</button><button class="btn-entregado" onclick="marcar(\''+p._id+'\',\'entregado\')">✅ Entregar</button>' : '')+
+        (esCamino ? '<button class="btn-entregado" onclick="marcar(\''+p._id+'\',\'entregado\')">✅ Confirmar entrega</button>' : '')+
+        (esDone   ? '<button class="btn-done-tag">✅ Entregado</button>' : '')+
+      '</div>';
+    el.appendChild(card);
+  });
+}
+
+window.marcar = function(id, estado){
+  if(!window._updatePedido){ alert('Sin conexión'); return; }
+  window._updatePedido(id, estado);
+};
+
+// Verificar sesión guardada al cargar
+(function(){
+  var s = JSON.parse(sessionStorage.getItem('bocao_dom')||'null');
+  if(s && DOMS[s.pin]){ sesion=s; iniciarApp(); }
+})();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+var app = initializeApp({
+  apiKey:"AIzaSyB7fkzZNNNY5oWt5oSAT-2wSwtJh69TKvs",
+  authDomain:"e703-18361.firebaseapp.com",
+  projectId:"e703-18361",
+  storageBucket:"e703-18361.firebasestorage.app",
+  messagingSenderId:"670782708176",
+  appId:"1:670782708176:web:db6470aa8e73da59a201d5"
+});
+var db = getFirestore(app);
+
+window._updatePedido = function(id, estado){
+  updateDoc(doc(db,'pedidos',id),{estado:estado})
+    .catch(function(e){ alert('Error: '+e.message); });
+};
+
+window._startListen = function(){
+  var dot = document.getElementById('statusDot');
+  var txt = document.getElementById('statusTxt');
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+
+  onSnapshot(collection(db,'pedidos'), function(snap){
+    dot.classList.add('on'); txt.textContent = 'En vivo ✓';
+    pedidos = [];
+    snap.forEach(function(d){
+      var p = d.data();
+      // SOLO domicilios activos de hoy — sin datos de admin
+      if(p.tipo !== 'domicilio') return;
+      if(p.estado === 'pagado') return; // ya cerrado
+      if(p.fecha && new Date(p.fecha) < hoy) return; // de otro día
+      // Solo campos necesarios para el domiciliario — sin totales de negocio
+      pedidos.push({
+        _id: d.id,
+        numero: p.numero,
+        estado: p.estado,
+        fecha: p.fecha,
+        cliente: p.cliente,
+        items: p.items,
+        notasGenerales: p.notasGenerales,
+        total: p.total,
+        costoEnvio: p.costoEnvio,
+        metodoPago: p.metodoPago
+      });
+    });
+    pedidos.sort(function(a,b){ return (a.numero||0)-(b.numero||0); });
+    renderPedidos();
+  }, function(err){
+    dot.classList.remove('on'); txt.textContent = 'Sin conexión';
+    console.error(err);
+  });
+};
+
+// Si ya había sesión activa, el listener ya fue iniciado desde el script principal
+// Si no, se inicia cuando el usuario hace login
+</script>
+</body>
+</html>
